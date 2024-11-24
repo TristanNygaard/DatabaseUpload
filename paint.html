@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painting Project</title>
+    <style>
+        #drawingCanvas {
+            border: 1px solid #000;
+            cursor: crosshair;
+        }
+        .tools {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body> <center>
+    <h1>Draw whatever your heart desires to be put onto my website</h1>
+    <div class="tools">
+        <label for="colorPicker">Color:</label>
+        <input type="color" id="colorPicker" value="#000000">
+        <label for="brushSize">Brush Size:</label>
+        <input type="number" id="brushSize" value="5" min="1" max="20">
+        <button id="clearCanvas">Clear</button>
+    </div>
+    <canvas id="drawingCanvas" width="800" height="400"></canvas>
+    <form id="uploadForm" action="upload.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="drawingData" id="drawingData">
+        <label for="title">Title:</label><br>
+        <input type="text" name="title" required><br><br>
+        <label>All artworks will first be MANUALLY approved - it may not show up right away</label>
+        <br>
+        <button type="submit">Upload Drawing</button>
+    </form>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
+        const clearCanvas = document.getElementById('clearCanvas');
+        const drawingData = document.getElementById('drawingData');
+        const uploadForm = document.getElementById('uploadForm');
+
+        let isDrawing = false;
+
+        // default drawing settings
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            ctx.lineWidth = brushSize.value;
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            ctx.closePath();
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDrawing = false;
+            ctx.closePath();
+        });
+
+        clearCanvas.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // converts whatever is on the canvas to an image
+        uploadForm.addEventListener('submit', (e) => {
+            const imageData = canvas.toDataURL('image/png');
+            drawingData.value = imageData; // sends the image
+        });
+    </script>
+</body></center>
+</html>
